@@ -199,30 +199,50 @@ class ViewController: UIViewController {
         operatorStatus = true
     }
     
+    //演算子が押されたら
     func pushOperator(Operator:String){
+        //一時的に数字を保存
         tempSet()
+        //文字が入っていなければ(エラーがでなければ)
         if !stringStatus {
+            //ステータスを押された演算子に
             status = Operator
             statusBox.text = status
         }
     }
+    //クリアが押された時
+    func pushClear(){
+        status = "" //ステータスをクリアに
+        temp = 0 //一時保存をクリア
+        stringStatus = false
+        editBox.text = "0"
+        statusBox.text = ""
+        myScrollView.removeFromSuperview() //スクロールビューを消す。
+        viewCount = 0
+        setScrollView() //スクロールビューをセット
+    }
     
+    //足し算
     func add(num : Double)->Double{
         return temp + num
     }
     
+    //引き算
     func sub(num : Double)->Double{
         return temp - num
     }
     
+    //かけ算
     func mlt(num : Double)->Double{
         return temp * num
     }
     
+    //割り算
     func div(num : Double)->Double{
         return temp / num
     }
     
+    //べき乗
     func pow(num : Int)->Double{
         
         var num1 : Double = 1.0
@@ -232,17 +252,7 @@ class ViewController: UIViewController {
         return num1
     }
     
-    func pushClear(){
-        status = ""
-        temp = 0
-        stringStatus = false
-        editBox.text = "0"
-        statusBox.text = ""
-        myScrollView.removeFromSuperview()
-        viewCount = 0
-        setScrollView()
-    }
-    
+    //イコール
     func equal(){
         var num : Double = (editBox.text! as NSString).doubleValue
         var mess : String
@@ -257,10 +267,12 @@ class ViewController: UIViewController {
         case "×"  :
             mess = String(stringInterpolationSegment: mlt(num))
         case "÷"  :
+            //0で割らなければ
             if num != 0 {
                 mess = String(stringInterpolationSegment: div(num))
             }else{
-                if temp == 0 {
+            //0で割った時
+                if temp == 0 { //一時保存が0
                     mess = "0"
                 } else {
                     mess = "INFINITI"
@@ -290,7 +302,7 @@ class ViewController: UIViewController {
     }
 
     func pushBtn(sender: UIButton){
-
+        //editBoxに文字列が入っているか？
         if stringStatus == false {
             switch(sender.currentTitle!){
             case "1","2","3","4","5","6","7","8","9","0","00","." :
@@ -357,32 +369,21 @@ class ViewController: UIViewController {
                 }
                 setEdidBox(editBox.text!)
             case "秘" :
-                editBox.text = "/*"
+                editBox.text = ""
             default :
                 pushClear()
             }
             
         }else{
+            //文字列が入ってた場合クリアしか効かない。
             if sender.currentTitle! == "C" {
                 pushClear()
             }
         }
     }
-
-    func setEditBoxToString(text:String){
-        //どちらの値も整数なら
-        if(StringNumberHandler.isHandlingInt(text)){
-            //StringNumberHandlerのメソッドtoIntを用いている
-            var intResult = StringNumberHandler.toInt(text)
-            editBox.text = toString(intResult)
-        } else {
-            var doubleA = StringNumberHandler.toDouble(text)
-            editBox.text = toString(doubleA)
-        }
-    }
     
+    //2.0の時2に変換
     func checkNum(text:String)->NSString{
-        
         var ret : String = ""
         var numFlg : Bool = false
         for char in text {
@@ -402,6 +403,7 @@ class ViewController: UIViewController {
         return ret
     }
     
+    //errorが出た時
     func setError(){
         pushClear()
         stringStatus = true
@@ -410,6 +412,7 @@ class ViewController: UIViewController {
         editBox.text = "Error"
     }
     
+    //editBoxに文字が入っているか
     func stringJudge(text : String) -> Bool {
         var searchString : Bool = false
         
@@ -425,7 +428,21 @@ class ViewController: UIViewController {
         }
         return searchString
     }
+
     
+    func setEditBoxToString(text:String){
+        //どちらの値も整数なら
+        if(StringNumberHandler.isHandlingInt(text)){
+            //StringNumberHandlerのメソッドtoIntを用いている
+            var intResult = StringNumberHandler.toInt(text)
+            editBox.text = toString(intResult)
+        } else {
+            var doubleA = StringNumberHandler.toDouble(text)
+            editBox.text = toString(doubleA)
+        }
+    }
+
+    //エディットにセットと11桁以上の時の制御
     func setEdidBox(text:String){
         if (text as NSString).length > 11 {
             setError()
@@ -443,6 +460,7 @@ class ViewController: UIViewController {
         }
     }
     
+    //スクロールビューを作る
     func setScrollView(){
         // ScrollViewを生成.
         myScrollView = UIScrollView()
@@ -458,6 +476,7 @@ class ViewController: UIViewController {
         self.view.addSubview(myScrollView)
     }
     
+    //子スクロールビューを追加
     func addScroll(){
         var a = viewCount
         ScrollStatusView    = UILabel(frame: CGRectMake( 0, CGFloat((70) * a), 60, 60))
@@ -468,15 +487,14 @@ class ViewController: UIViewController {
         ScrollStatusView.text = statusBox.text
         ScrollView.textAlignment = NSTextAlignment.Right
         ScrollStatusView.textAlignment = NSTextAlignment.Center
-        myScrollView.addSubview(ScrollView)
-        myScrollView.addSubview(ScrollStatusView)
-        
-        myScrollView.contentSize = CGSizeMake(CGFloat(screenWidth-BtnMargin*2), CGFloat(70 * (a+1)))
-        viewCount++
-        
-        if viewCount > 50 {
-            
+        if viewCount < 50 {
+            myScrollView.addSubview(ScrollView)
+            myScrollView.addSubview(ScrollStatusView)
+            viewCount++
         }
+        myScrollView.contentSize = CGSizeMake(CGFloat(screenWidth-BtnMargin*2), CGFloat(70 * (a+1)))
+        
+
     }
     
 }
